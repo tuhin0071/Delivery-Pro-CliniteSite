@@ -4,6 +4,9 @@
 } from "react-router";
 import RootLayout from "../LayOut/RootLayout";
 import Home from "../Pages/Home/Home";
+import AuthLayout from "../LayOut/AuthLayout";
+import Login from "../Pages/Authantication/Login";
+import Register from "../Pages/Authantication/Register";
  
  
  
@@ -22,4 +25,17 @@ import Home from "../Pages/Home/Home";
 
     ]
   },
+  {
+ path:'/',
+ element:<AuthLayout/>,
+children:[
+  {
+ path:'/login',
+ element:<Login/>
+  },{
+    path:'/register',
+    element:<Register/>
+  }
+]
+  }
 ]);

@@ -20,7 +20,7 @@ const navItems =  <>
 
 
             <div>
-                  <div className="navbar bg-base-100 shadow-sm">
+                  <div className="navbar bg-yellow-50 shadow-sm rounded-3xl px-5 my-8 py-2">
   <div className="navbar-start">
     <div className="dropdown">
       <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">

@@ -41,7 +41,7 @@ const CustomerReview = () => {
       id="customer-reviews"
       data-aos="zoom-in"
        
-        data-aos-duration="4000"
+        data-aos-duration="3000"
         data-aos-delay="200"
         data-aos-offset="10"
         data-aos-easing="ease-out-cubic"
