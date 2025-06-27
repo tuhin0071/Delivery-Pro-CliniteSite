@@ -1,9 +1,54 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poetsen+One&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
-
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* Custom CSS Variables for Primary Color #CAEB66 */
+:root {
+  --color-primary-50: 248 253 230;
+  --color-primary-100: 240 250 204;
+  --color-primary-200: 225 244 153;
+  --color-primary-300: 202 235 102; /* #CAEB66 - Your exact color */
+  --color-primary-400: 179 226 51;
+  --color-primary-500: 202 235 102; /* #CAEB66 - Main primary */
+  --color-primary-600: 162 188 82;
+  --color-primary-700: 135 157 68;
+  --color-primary-800: 108 125 54;
+  --color-primary-900: 90 105 45;
+}
+
+/* Custom Utility Classes */
+.bg-primary {
+  background-color: rgb(var(--color-primary-500));
+}
+
+.bg-primary-light {
+  background-color: rgb(var(--color-primary-400));
+}
+
+.bg-primary-dark {
+  background-color: rgb(var(--color-primary-600));
+}
+
+.text-primary {
+  color: rgb(var(--color-primary-500));
+}
+
+.text-primary-dark {
+  color: rgb(var(--color-primary-700));
+}
+
+.border-primary {
+  border-color: rgb(var(--color-primary-500));
+}
+
+/* Hover States */
+.hover\:bg-primary-dark:hover {
+  background-color: rgb(var(--color-primary-600));
+}
+
+.hover\:bg-primary-darker:hover {
+  background-color: rgb(var(--color-primary-700));
+}
 
 .font-urbanist{
   font-family: "Urbanist", sans-serif;

@@ -27,6 +27,7 @@ setLoading(true)
 useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, currentUser => {
       setUser(currentUser);
+        setLoading(false);
       console.log('user',currentUser);
       
     });
@@ -41,6 +42,7 @@ const googleProvider = new GoogleAuthProvider();
   };
 
       const authInfo = {
+            user,
             createUser,
             loading,
             signin,
