@@ -9,7 +9,9 @@ import Login from "../Pages/Authantication/Login";
 import Register from "../Pages/Authantication/Register";
 import Coverage from "../Pages/Coverage/Coverage";
 import PrivateRoute from "../Route/PrivateRoute";
-import SendPercel from "../Pages/SendPercel";
+import AddParcelForm from "../Pages/SendPercel";
+import DashboardLayout from "../LayOut/DashboardLayout";
+
  
  
  
@@ -31,7 +33,7 @@ import SendPercel from "../Pages/SendPercel";
   path:"/send",
 
 element: <PrivateRoute>
-  <SendPercel/>
+  <AddParcelForm/>
 </PrivateRoute>
 
 }
@@ -51,5 +53,18 @@ children:[
     element:<Register/>
   }
 ]
+  },
+
+  {
+
+path:'/dashboard',
+element: <PrivateRoute>
+  <DashboardLayout/>
+</PrivateRoute> ,
+children:[
+
+
+]
+
   }
 ]);

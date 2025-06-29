@@ -1,17 +1,26 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router';
 import Logo from './Logo';
+import UseAuth from '../Hooks/UseAuth';
 
 const Navbar = () => {
 
 
-
+const {user}= UseAuth();
 const navItems =  <>
 
 <li className='text-black'> <NavLink to="/"  >Home</NavLink> </li>
         <li className='text-black'> <NavLink to="/coverage"  >Coverage</NavLink> </li>
            <li className='text-black'> <NavLink to="/send"  >SendParcel</NavLink> </li>
         <li> <NavLink to="/about" >About us</NavLink>  </li>
+
+
+        {
+          user && <>
+          
+          <li className='text-black'> <NavLink to="/dashboard"  >Dashboard</NavLink> </li>
+          </>
+        }
 
 </>
 
