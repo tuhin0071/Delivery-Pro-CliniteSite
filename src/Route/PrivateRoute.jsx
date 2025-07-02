@@ -6,13 +6,14 @@ import { AuthContext } from '../Auth-context/Authcontext';
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
   const location = useLocation();
+  
 
   if (loading) {
     return <div className="text-center py-20"> Loader </div>; // You can use your spinner here
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate state={{from:location.pathname}} to="/login"  replace />;
   }
 
   return children;

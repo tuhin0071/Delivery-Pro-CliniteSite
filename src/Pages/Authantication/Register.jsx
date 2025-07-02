@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import UseAuth from '../../Hooks/UseAuth';
 
 
@@ -8,6 +8,9 @@ const Register = () => {
 
 const {createUser} = UseAuth()
 const { googleLogin } = UseAuth();
+const location = useLocation();
+const navigate = useNavigate();
+const from = location.state?.from || '/';
 
 
 
@@ -34,6 +37,7 @@ const handleGoogleLogin = () => {
   googleLogin()
     .then(result => {
       console.log('Google user:', result.user);
+      navigate(from);
     })
     .catch(error => {
       console.error('Google login error:', error.message);

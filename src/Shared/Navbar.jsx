@@ -1,12 +1,26 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
 import Logo from './Logo';
 import UseAuth from '../Hooks/UseAuth';
 
 const Navbar = () => {
 
 
-const {user}= UseAuth();
+const {user,logout}= UseAuth();
+const navigate = useNavigate();
+
+const handleLogout = () => {
+  logout()
+    .then(result => {
+      console.log(result);
+       navigate("/login");
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+
 const navItems =  <>
 
 <li className='text-black'> <NavLink to="/"  >Home</NavLink> </li>
@@ -18,7 +32,7 @@ const navItems =  <>
         {
           user && <>
           
-          <li className='text-black'> <NavLink to="/dashboard"  >Dashboard</NavLink> </li>
+          <li className='text-black'> <NavLink to="/dashBoard"  >Dashboard</NavLink> </li>
           </>
         }
 
@@ -52,7 +66,26 @@ const navItems =  <>
     </ul>
   </div>
   <div className="navbar-end">
-    <Link to="/login" className="btn text-black bg-primary">Login</Link>
+   <div className="navbar-end">
+  {
+    user ? (
+      <button
+        onClick={handleLogout}
+        className="btn text-black bg-primary"
+      >
+        Logout
+      </button>
+    ) : (
+      <Link
+        to="/login"
+        className="btn text-black bg-primary"
+      >
+        Login
+      </Link>
+    )
+  }
+</div>
+
   </div>
 </div>
             </div>
