@@ -6,20 +6,32 @@ import moment from 'moment';
 import { useNavigate } from 'react-router';
 
 const Myparcel = () => {
-  const user = UseAuth();
+  const { user, loading: authLoading } = UseAuth();
   const axiosSecure = useAxiosSecqure();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  console.log("✅ USER:", user);
+
+  if (authLoading) {
+    return <p className="text-center mt-10">Loading user...</p>;
+  }
+
+  if (!user?.email) {
+    return <p className="text-center mt-10 text-red-600">No user logged in!</p>;
+  }
+
   const { data: parcels = [], isLoading } = useQuery({
+    enabled: !!user?.email,
     queryKey: ['my-parcels', user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/parcels?email=${user.email}`);
+      const res = await axiosSecure.get(`/parcels?userEmail=${user.email}`);
+      console.log("✅ Parcels response:", res.data);
       return res.data;
     },
   });
 
-  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
+  if (isLoading) return <p className="text-center mt-10">Loading parcels...</p>;
 
   return (
     <div className="p-6">
@@ -47,7 +59,7 @@ const Myparcel = () => {
                 <td className="px-4 py-3">{parcel.parcelName}</td>
                 <td className="px-4 py-3">{parcel.parcelType}</td>
                 <td className="px-4 py-3">
-                  {moment(parcel.bookingDateTime).format('YYYY-MM-DD HH:mm')}
+                  {moment(parcel.bookingDateTime || parcel.createdAt).format('YYYY-MM-DD HH:mm')}
                 </td>
                 <td className="px-4 py-3">৳{parcel.price}</td>
                 <td className="px-4 py-3">
@@ -55,7 +67,7 @@ const Myparcel = () => {
                     onClick={() => handlePay(parcel)}
                     className="px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800"
                   >
-                    Unpaid
+                    {parcel.paymentStatus || 'Unpaid'}
                   </button>
                 </td>
                 <td className="px-4 py-3 flex flex-wrap gap-2">
@@ -87,22 +99,15 @@ const Myparcel = () => {
   );
 
   function handleView(parcel) {
-    console.log('View clicked:', parcel);
     alert(JSON.stringify(parcel, null, 2));
   }
 
   function handlePay(parcel) {
-    console.log('Pay clicked:', parcel);
-
-    // show the alert first
-    alert(`Proceeding to pay ৳${parcel.price} for parcel "${parcel.parcelName}"`);
-
-    // then navigate
     navigate(`/dashboard/payment/${parcel._id}`);
   }
 
   function handleDelete(id) {
-    if (confirm('Are you sure you want to delete this parcel?')) {
+    if (window.confirm('Are you sure you want to delete this parcel?')) {
       axiosSecure.delete(`/parcels/${id}`).then(() => {
         alert('Parcel deleted!');
         queryClient.invalidateQueries({

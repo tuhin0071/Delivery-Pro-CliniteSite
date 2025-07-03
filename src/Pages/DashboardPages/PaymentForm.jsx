@@ -23,36 +23,36 @@ const CARD_ELEMENT_OPTIONS = {
 };
 
 const PaymentForm = () => {
-  const stripe = useStripe();
-  const elements = useElements();
-
+  const stripe = useStripe();               // stripe instance
+  const elements = useElements();           // stripe elements instance
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const axiosSecure = useAxiosSecqure();
+  const axiosSecure = useAxiosSecqure();
 
+  const { parcelId } = useParams();
+  console.log("ParcelId:", parcelId);
 
+  // Fetch the parcel info by ID from backend
+  const { data: parcelInfo } = useQuery({
+    queryKey: ['parcels', parcelId],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/parcels/${parcelId}`);
+      return res.data;
+    },
+  });
 
-const {parcelId} = useParams()
-console.log(parcelId);
+  console.log("Parcel Info:", parcelInfo);
 
+  // Defensive check if parcelInfo is undefined initially
+  const price = parcelInfo?.price || 0;
 
-const {data:parcelInfo}= useQuery({
-      queryKey:['parcels',parcelId],
-      queryFn: async()=>{
-            const res = await axiosSecure.get (`/parcels/${parcelId}`);
-            return res.data;
-      }
-})
-
-console.log(parcelInfo);
-
-const price =  parcelInfo?.price;
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Stripe not yet loaded
     if (!stripe || !elements) {
       return;
     }
@@ -60,28 +60,55 @@ const price =  parcelInfo?.price;
     setProcessing(true);
     setError('');
 
+    // Get the card details from the CardElement field
     const card = elements.getElement(CardElement);
     if (!card) {
+      setError("Card element not loaded.");
+      setProcessing(false);
       return;
     }
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card,
-    });
+    try {
+      // STEP 1: Request clientSecret from backend
+      const res = await axiosSecure.post('/create-payment-intent', {
+        price: price,
+      });
 
-    if (error) {
-      setError(error.message);
-      setProcessing(false);
-    } else {
-      console.log('Payment Method Created:', paymentMethod);
-      setSuccess(true);
-      setProcessing(false);
+      const clientSecret = res.data.clientSecret;
+      console.log("Received client secret:", clientSecret);
+
+      // STEP 2: Confirm the card payment using clientSecret
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: card,
+        },
+      });
+
+      if (confirmError) {
+        console.error("Payment error:", confirmError);
+        setError(confirmError.message);
+        setProcessing(false);
+        return;
+      }
+
+      console.log("✅ Payment Intent:", paymentIntent);
+
+      if (paymentIntent.status === 'succeeded') {
+        // Payment was successful
+        setSuccess(true);
+        setProcessing(false);
+        
+        // Optionally send payment info to backend here to save it
+
+        // Redirect to My Parcel page
         navigate('/dashBoard/myparcel');
+      }
+
+    } catch (err) {
+      console.error("Payment Exception:", err);
+      setError("An error occurred during payment.");
+      setProcessing(false);
     }
-
-    
-
   };
 
   return (
@@ -94,6 +121,7 @@ const price =  parcelInfo?.price;
         </p>
       ) : (
         <form onSubmit={handleSubmit}>
+          {/* Stripe CardElement renders the card input fields */}
           <div className="mb-4">
             <CardElement
               options={CARD_ELEMENT_OPTIONS}
@@ -101,6 +129,7 @@ const price =  parcelInfo?.price;
             />
           </div>
 
+          {/* Show any errors */}
           {error && (
             <p className="text-red-600 text-sm mb-2">{error}</p>
           )}
@@ -114,7 +143,7 @@ const price =  parcelInfo?.price;
                 : 'bg-green-600 hover:bg-green-700'
             }`}
           >
-            {processing ? 'Processing...' : `Pay ৳${price}`}
+            {processing ? 'Processing...' : `Pay $${price}`}
           </button>
         </form>
       )}

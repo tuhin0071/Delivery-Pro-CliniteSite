@@ -48,7 +48,6 @@ const AddParcelForm = () => {
     let cost = 0;
     const weight = parseFloat(data.parcelWeight) || 0;
     const type = data.parcelType;
-
     const sameRegion = data.senderRegion === data.receiverRegion;
 
     if (type === "Document") {
@@ -61,7 +60,6 @@ const AddParcelForm = () => {
         cost = sameRegion ? baseCost : baseCost + 40;
       }
     }
-
     return cost;
   };
 
@@ -94,7 +92,6 @@ const AddParcelForm = () => {
         ).toFixed(2)}`;
       }
     }
-
     return breakdown.replace(/\n/g, "<br/>");
   };
 
@@ -105,6 +102,9 @@ const AddParcelForm = () => {
     const currentDateTime = new Date().toISOString();
     const trackingId = generateTrackingId();
 
+    // ✅✅✅ ✅✅✅
+    // ✅ FIXED: Add `paymentStatus: "unpaid"`
+    // ✅ This ensures parcels are stored as unpaid initially.
     const parcelData = {
       ...data,
       userEmail: user?.email || data.userEmail,
@@ -113,6 +113,7 @@ const AddParcelForm = () => {
       price,
       bookingDateTime: currentDateTime,
       trackingId,
+      paymentStatus: "unpaid", // ✅ ✅ ✅ ADDED THIS LINE!
     };
 
     Swal.fire({
@@ -128,11 +129,10 @@ const AddParcelForm = () => {
 
     console.log("Parcel Data:", parcelData);
 
-     axiosSecure.post('/parcels', parcelData)
-     .then(res=>{
-      console.log(res.data);
-      
-     })
+    axiosSecure.post('/parcels', parcelData)
+      .then(res => {
+        console.log(res.data);
+      });
 
     reset();
     setFlowchartUrl("");
@@ -210,7 +210,6 @@ const AddParcelForm = () => {
 
         {/* Form Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Parcel Name */}
           <div>
             <label className="block text-gray-600 mb-1">Parcel Name</label>
             <input
@@ -225,7 +224,6 @@ const AddParcelForm = () => {
             )}
           </div>
 
-          {/* Parcel Weight */}
           <div>
             <label className="block text-gray-600 mb-1">Parcel Weight (KG)</label>
             <input
@@ -342,10 +340,8 @@ const AddParcelForm = () => {
           </div>
         </div>
 
-        {/* Pickup Note */}
         <p className="text-gray-500 text-sm mt-4">* Pickup Time: 4pm - 7pm Approx.</p>
 
-        {/* Button */}
         <div className="mt-6">
           <button
             type="submit"
