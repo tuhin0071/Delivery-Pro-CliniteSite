@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import useAxiosSecqure from '../../Hooks/useAxiosSecqure';
+import UseAuth from '../../Hooks/UseAuth';
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -23,19 +24,18 @@ const CARD_ELEMENT_OPTIONS = {
 };
 
 const PaymentForm = () => {
-  const stripe = useStripe();               // stripe instance
-  const elements = useElements();           // stripe elements instance
+  const stripe = useStripe();
+  const elements = useElements();
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const axiosSecure = useAxiosSecqure();
-
+  const { user } = UseAuth();
   const { parcelId } = useParams();
-  console.log("ParcelId:", parcelId);
 
-  // Fetch the parcel info by ID from backend
+  // Fetch parcel info
   const { data: parcelInfo } = useQuery({
     queryKey: ['parcels', parcelId],
     queryFn: async () => {
@@ -46,13 +46,11 @@ const PaymentForm = () => {
 
   console.log("Parcel Info:", parcelInfo);
 
-  // Defensive check if parcelInfo is undefined initially
   const price = parcelInfo?.price || 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Stripe not yet loaded
     if (!stripe || !elements) {
       return;
     }
@@ -60,7 +58,6 @@ const PaymentForm = () => {
     setProcessing(true);
     setError('');
 
-    // Get the card details from the CardElement field
     const card = elements.getElement(CardElement);
     if (!card) {
       setError("Card element not loaded.");
@@ -69,15 +66,17 @@ const PaymentForm = () => {
     }
 
     try {
-      // STEP 1: Request clientSecret from backend
+      // STEP 1: Get client secret from backend
       const res = await axiosSecure.post('/create-payment-intent', {
         price: price,
+        parcelId: parcelId,
+        userEmail: user?.email,
       });
 
       const clientSecret = res.data.clientSecret;
       console.log("Received client secret:", clientSecret);
 
-      // STEP 2: Confirm the card payment using clientSecret
+      // STEP 2: Confirm card payment
       const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: card,
@@ -94,13 +93,16 @@ const PaymentForm = () => {
       console.log("✅ Payment Intent:", paymentIntent);
 
       if (paymentIntent.status === 'succeeded') {
-        // Payment was successful
+        // ✅ STEP 3: Save payment to backend
+        await axiosSecure.post('/payments', {
+          parcelId: parcelId,
+          transactionId: paymentIntent.id,
+          amount: paymentIntent.amount / 100,
+          userEmail: user?.email,
+        });
+
         setSuccess(true);
         setProcessing(false);
-        
-        // Optionally send payment info to backend here to save it
-
-        // Redirect to My Parcel page
         navigate('/dashBoard/myparcel');
       }
 
@@ -121,7 +123,6 @@ const PaymentForm = () => {
         </p>
       ) : (
         <form onSubmit={handleSubmit}>
-          {/* Stripe CardElement renders the card input fields */}
           <div className="mb-4">
             <CardElement
               options={CARD_ELEMENT_OPTIONS}
@@ -129,7 +130,6 @@ const PaymentForm = () => {
             />
           </div>
 
-          {/* Show any errors */}
           {error && (
             <p className="text-red-600 text-sm mb-2">{error}</p>
           )}

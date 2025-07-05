@@ -12,6 +12,7 @@ import AddParcelForm from "../Pages/SendPercel";
 import DashboardLayout from "../LayOut/DashboardLayout";
 import Myparcel from "../Pages/DashboardPages/Myparcel";
 import Payment from "../Pages/DashboardPages/Payment";
+import PaymentHistory from "../Pages/DashboardPages/PaymentHistory";
 
 export const router = createBrowserRouter([
   {
@@ -64,6 +65,10 @@ export const router = createBrowserRouter([
       },{
         path:'payment/:parcelId',
         element:<Payment/>
+      },{
+        path:'paymentHistory',
+        element:<PaymentHistory/>
+
       }
     ],
   },

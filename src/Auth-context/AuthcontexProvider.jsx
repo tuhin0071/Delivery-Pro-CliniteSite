@@ -24,6 +24,12 @@ setLoading(true)
  }
 
 
+
+ const updateUser = (userInfo)=>{
+      setLoading(true)
+      return updateCurrentUser(auth.currentUser, userInfo)
+ }
+
 useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, currentUser => {
       setUser(currentUser);
@@ -47,7 +53,8 @@ const googleProvider = new GoogleAuthProvider();
             loading,
             signin,
             googleLogin,
-            logout
+            logout,
+            updateUser
 
       }
       return (
